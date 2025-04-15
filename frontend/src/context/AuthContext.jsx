@@ -4,6 +4,7 @@ import { createContext, useState, useEffect, useContext } from "react"
 import { api } from "../services/api"
 
 const AuthContext = createContext()
+var payload;
 
 export const useAuth = () => useContext(AuthContext)
 
@@ -20,10 +21,16 @@ export const AuthProvider = ({ children }) => {
     setLoading(false)
   }, [])
 
+
   const login = async (username, password) => {
     try {
       const response = await api.post("/api/token/", { username, password })
-      const { access, refresh } = response.data
+      const {access, refresh } = response.data
+      //Se extrae el payload del token de acceso, osea la parte que esta entre el primer y segundo punto
+      //const payload = JSON.parse(atob(access.split(".")[1]))
+      payload = JSON.parse(atob(access.split(".")[1]))
+      //Se extrae el dni, esto se puede porque en serializer se creo el token usando dni como parametro
+      //console.log(payload.id)
 
       localStorage.setItem("accessToken", access)
       localStorage.setItem("refreshToken", refresh)
@@ -35,6 +42,8 @@ export const AuthProvider = ({ children }) => {
       return false
     }
   }
+
+
 
   const logout = async () => {
     try {
@@ -69,3 +78,11 @@ export const AuthProvider = ({ children }) => {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
+
+export const getPayload = {
+  id: () => payload.id,
+}
+
+
+
+

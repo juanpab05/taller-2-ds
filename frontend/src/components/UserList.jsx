@@ -4,17 +4,23 @@ import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { userService } from "../services/api"
 
+//Funcion de authcontext para obtener el payload del token desencriptado
+import { getPayload } from "../context/AuthContext"
+
 const UserList = () => {
-  const [users, setUsers] = useState([])
+  const [user, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [successMessage, setSuccessMessage] = useState("")
 
-  const fetchUsers = async () => {
+  //Id del usuario
+  const id = getPayload.id()
+  const fetchUsers = async (id) => {
     try {
-      const response = await userService.getAll()
+      const response = await userService.getById(id)
       setUsers(response.data)
       setError("")
+      console.log(getPayload.id())
     } catch (err) {
       setError("Error al cargar los usuarios")
       console.error(err)
@@ -24,7 +30,7 @@ const UserList = () => {
   }
 
   useEffect(() => {
-    fetchUsers()
+    fetchUsers(id)
   }, [])
 
   const handleDelete = async (id) => {
@@ -82,14 +88,14 @@ const UserList = () => {
             </tr>
           </thead>
           <tbody>
-            {users.length === 0 ? (
+            {user.length === 0 ? (
               <tr>
                 <td colSpan="8" style={{ textAlign: "center" }}>
                   No hay usuarios registrados
                 </td>
               </tr>
             ) : (
-              users.map((user) => (
+              
                 <tr key={user.id}>
                   <td>{user.id}</td>
                   <td>{user.username}</td>
@@ -107,7 +113,7 @@ const UserList = () => {
                     </button>
                   </td>
                 </tr>
-              ))
+              
             )}
           </tbody>
         </table>
